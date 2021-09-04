@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fund-me/auth"
 	"fund-me/handler"
 	"fund-me/user"
 	"log"
@@ -21,7 +22,8 @@ func main() {
 	// User API
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
-	userHandler := handler.NewUserHandler(userService)
+	authService := auth.NewService()
+	userHandler := handler.NewUserHandler(userService, authService)
 
 	router := gin.Default()        // Declare new Router
 	api := router.Group("/api/v1") // API Versioning
