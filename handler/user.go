@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"fund-me/helper"
 	"fund-me/user"
 	"net/http"
@@ -153,6 +154,69 @@ func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
 
 	response := helper.APIResponse(
 		metaMessage,
+		http.StatusOK,
+		"success",
+		data,
+	)
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *userHandler) UploadAvatar(c *gin.Context) {
+	// Input from user
+	file, err := c.FormFile("avatar")
+
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.APIResponse(
+			"Failed to upload avatar image",
+			http.StatusBadRequest,
+			"error",
+			data,
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	// TODO:Must be get from JWT Tokem
+	userID := 1
+
+	// Upload image from file form
+	path := fmt.Sprintf("images/%d_%d_%s", userID, helper.NowAsUnixMillis(), file.Filename)
+	err = c.SaveUploadedFile(file, path)
+
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.APIResponse(
+			"Failed to upload avatar image",
+			http.StatusBadRequest,
+			"error",
+			data,
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	_, err = h.userService.SaveAvatar(userID, path)
+
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.APIResponse(
+			"Failed to upload avatar image",
+			http.StatusBadRequest,
+			"error",
+			data,
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	data := gin.H{"is_uploaded": true}
+	response := helper.APIResponse(
+		"Avatar uploaded successfull",
 		http.StatusOK,
 		"success",
 		data,

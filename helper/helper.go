@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"time"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -38,4 +40,8 @@ func FormatValidationError(err error) []string {
 	}
 
 	return errors
+}
+
+func NowAsUnixMillis() int64 {
+	return time.Now().UnixNano() / 1e6
 }
