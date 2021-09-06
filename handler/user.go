@@ -205,8 +205,8 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	// TODO:Must be get from JWT Tokem
-	userID := 1
+	currentUser := c.MustGet("currentUser").(user.User)
+	userID := currentUser.ID
 
 	// Upload image from file form
 	path := fmt.Sprintf("images/%d_%d_%s", userID, helper.NowAsUnixMillis(), file.Filename)
