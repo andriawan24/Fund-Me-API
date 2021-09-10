@@ -33,12 +33,12 @@ func main() {
 
 	// Campaign API
 	campaignRepository := campaign.NewRepository(db)
-	campaigns, _ := campaignRepository.FindByUserId(1)
+	campaignService := campaign.NewService(campaignRepository)
+	campaigns, _ := campaignService.FindCampaigns(0)
 
 	fmt.Println(len(campaigns))
 	for _, campaign := range campaigns {
 		fmt.Println(campaign)
-		fmt.Println(campaign.CampaignImages[0].FileName)
 	}
 
 	router := gin.Default()        // Declare new Router
