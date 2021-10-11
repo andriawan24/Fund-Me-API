@@ -5,6 +5,7 @@ import (
 	"fund-me/campaign"
 	"fund-me/handler"
 	"fund-me/helper"
+	"fund-me/payment"
 	"fund-me/transaction"
 	"fund-me/user"
 	"log"
@@ -38,7 +39,8 @@ func main() {
 
 	// Transaction API
 	transactionRepository := transaction.NewRepository(db)
-	transactionService := transaction.NewService(transactionRepository, campaignRepository)
+	paymentService := payment.NewService()
+	transactionService := transaction.NewService(transactionRepository, campaignRepository, paymentService)
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	router := gin.Default() // Declare new Router
@@ -61,6 +63,7 @@ func main() {
 	// Transaction API Endpoint
 	api.GET("/campaigns/:id/transactions", authMiddleware(authService, userService), transactionHandler.GetCampaignTransactions)
 	api.GET("/transactions", authMiddleware(authService, userService), transactionHandler.GetUserTransactions)
+	api.POST("/transactions", authMiddleware(authService, userService), transactionHandler.CreateTransaction)
 
 	router.Run()
 }
