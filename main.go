@@ -39,9 +39,9 @@ func main() {
 
 	// Transaction API
 	transactionRepository := transaction.NewRepository(db)
-	paymentService := payment.NewService()
+	paymentService := payment.NewService(transactionRepository, campaignRepository)
 	transactionService := transaction.NewService(transactionRepository, campaignRepository, paymentService)
-	transactionHandler := handler.NewTransactionHandler(transactionService)
+	transactionHandler := handler.NewTransactionHandler(transactionService, paymentService)
 
 	router := gin.Default() // Declare new Router
 	router.Static("/images", "./images")
@@ -64,6 +64,7 @@ func main() {
 	api.GET("/campaigns/:id/transactions", authMiddleware(authService, userService), transactionHandler.GetCampaignTransactions)
 	api.GET("/transactions", authMiddleware(authService, userService), transactionHandler.GetUserTransactions)
 	api.POST("/transactions", authMiddleware(authService, userService), transactionHandler.CreateTransaction)
+	api.POST("/transactions/notification", transactionHandler.GetNotification)
 
 	router.Run()
 }
