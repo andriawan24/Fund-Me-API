@@ -39,9 +39,9 @@ func main() {
 
 	// Transaction API
 	transactionRepository := transaction.NewRepository(db)
-	paymentService := payment.NewService(transactionRepository, campaignRepository)
+	paymentService := payment.NewService()
 	transactionService := transaction.NewService(transactionRepository, campaignRepository, paymentService)
-	transactionHandler := handler.NewTransactionHandler(transactionService, paymentService)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	router := gin.Default() // Declare new Router
 	router.Static("/images", "./images")
