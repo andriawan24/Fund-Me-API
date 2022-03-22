@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -45,7 +44,7 @@ func main() {
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	router := gin.Default() // Declare new Router
-	router.Use(cors.Default())
+	router.Use(corsMiddleware())
 	router.Static("/images", "./images")
 	api := router.Group("/api/v1") // API Versioning
 
@@ -54,6 +53,7 @@ func main() {
 	api.POST("/login", userHandler.Login)
 	api.POST("/email-checker", userHandler.CheckEmailAvailability)
 	api.POST("/avatar", authMiddleware(authService, userService), userHandler.UploadAvatar)
+	api.GET("/users/fetch", authMiddleware(authService, userService), userHandler.FetchUser)
 
 	// Campaign API Endpoint
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
@@ -69,6 +69,23 @@ func main() {
 	api.POST("/transactions/notification", transactionHandler.GetNotification)
 
 	router.Run()
+}
+
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(200)
+		} else {
+			c.Next()
+		}
+	}
 }
 
 func authMiddleware(authService auth.Service, userService user.Service) gin.HandlerFunc {

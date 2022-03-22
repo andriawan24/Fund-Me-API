@@ -2,8 +2,11 @@ package payment
 
 import (
 	"fund-me/user"
+	"log"
+	"os"
 	"strconv"
 
+	"github.com/joho/godotenv"
 	"github.com/veritrans/go-midtrans"
 )
 
@@ -20,8 +23,14 @@ func NewService() *service {
 
 func (s *service) GetPaymentURL(transaction Transaction, user user.User) (string, error) {
 	midclient := midtrans.NewClient()
-	midclient.ServerKey = "SB-Mid-server-OkJXYkXkmANlEkaQw0nJC-JM"
-	midclient.ClientKey = "SB-Mid-client-9uuq91_KI3RhzFoH"
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	midclient.ServerKey = os.Getenv("MIDTRANS_SERVER_KEY")
+	midclient.ClientKey = os.Getenv("MIDTRANS_CLIENT_KEY")
 	midclient.APIEnvType = midtrans.Sandbox
 
 	snapGateway := midtrans.SnapGateway{
